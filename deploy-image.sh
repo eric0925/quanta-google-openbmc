@@ -7,6 +7,7 @@ LOCAL_PATH="$BASE_TOOL_PATH/bios_image"  # 改為讓使用者選擇當前目錄�
 PASS="0penBmc"
 LINE_LENGTH=60
 SEPARATOR=$(printf '%*s' "$LINE_LENGTH" '' | tr ' ' '=')
+IMAGE_BMC_PATH=
 #-----------------------------------------------------------------------------------------
 if [ ! -d "$LOCAL_PATH" ]; then
     echo "Error: Local path $LOCAL_PATH does not exist!"
@@ -14,38 +15,9 @@ if [ ! -d "$LOCAL_PATH" ]; then
 fi
 cd "$LOCAL_PATH" || exit 1
 
-echo "$SEPARATOR"
-echo "AVAILABLE BIOS FILES"
-echo "$SEPARATOR"
-
-# 搜尋當前目錄下的 .bios 與 .bin 檔案並存入陣列
-# 使用 shopt 確保找不到檔案時不會噴原生萬用字元
-shopt -s nullglob
-FILES=( *.bios *.bin )
-shopt -u nullglob
-
-if [ ${#FILES[@]} -eq 0 ]; then
-    echo "No .bios or .bin files found in $LOCAL_PATH!"
-    exit 1
-fi
-
-COLUMNS=1
-select FILE_CHOICE in "${FILES[@]}"; do
-    if [ -n "$FILE_CHOICE" ]; then
-        BIOS_FILE="$FILE_CHOICE"
-        echo "You selected: $BIOS_FILE"
-        break
-    else
-        echo "Invalid choice, please try again."
-    fi
-done
-# 選擇完後可以把 COLUMNS 復原（或是放著不管它，因為腳本快結束了）  <--- 看不太懂
-unset COLUMNS
-
 select_machine_from_conf
 
-# 測試連線並建立遠端目錄
-sshpass -p "$PASS" ssh -o ConnectTimeout=3 -o StrictHostKeyChecking=no root@"$bmc_ip" "mkdir -p /mnt/luks-mmcblk0_fs/bios"
+sshpass -p "$PASS" scp  -o ConnectTimeout=3 -o StrictHostKeyChecking=no root@"$bmc_ip" "mkdir -p /mnt/luks-mmcblk0_fs/bios"
 
 if [ $? -ne 0 ]; then
     echo "Error: SSH connection timed out or failed to execute command on $bmc_ip"
@@ -79,5 +51,10 @@ echo "--------------------------"
 
 echo "press [Enter] to AC the target"
 read -p ""
+echo "commit the sync_bios_dram_to_emmc temporarily"
+sshpass -p "$PASS" ssh root@$bmc_ip "sed -i 's/^\([[:space:]]*\)sync_bios_dram_to_emmc/\1# sync_bios_dram_to_emmc/'  /usr/bin/tray_powercycle.sh"
 
-sshpass -p "$PASS" ssh root@$bmc_ip "/usr/bin/tray_powercycle.sh"
+AC_cmd="rm -r /run/initramfs/rw/cow/* && /usr/bin/tray_powercycle.sh"
+echo $AC_cmd
+sshpass -p "$PASS" ssh root@$bmc_ip $AC_cmd
+

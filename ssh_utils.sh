@@ -7,6 +7,7 @@
 SERVER="http://10.10.10.203:8888"
 conf_file="/home/ericlee/quanta_openbmc_toolbox/auto_ip_list.conf"
 cookie_path="/home/ericlee/quanta_openbmc_toolbox/cookie.txt"
+PASS="0penBmc"
 
 select_machine_from_conf() {
     if [ ! -f "$conf_file" ]; then
@@ -160,7 +161,7 @@ autossh(){
 
     select_machine_from_conf
 
-    CMD="sshpass -p 0penBmc ssh -o StrictHostKeyChecking=no root@$bmc_ip"
+    CMD="sshpass -p $PASS ssh -o StrictHostKeyChecking=no root@$bmc_ip"
     echo
     echo "execute the command:"
     echo "$CMD"

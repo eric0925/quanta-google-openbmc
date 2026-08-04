@@ -27,11 +27,11 @@ REMOTE_COMMANDS=$(cat << 'EOF'
     /usr/bin/asd -u --xdp-ignore --cpu-index 0 
 EOF
 )
-$PASS="0penBmc"
+PASS="0penBmc"
 # 3. 透過 sshpass 遠端執行
 # 加上 -o ConnectTimeout 避免遠端掛掉時腳本卡死
-echo "executing: sshpass -p \"0penBmc\" ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@\"$bmc_ip\" \"$REMOTE_COMMANDS\""
-sshpass -p 0penBmc ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@"$bmc_ip" "$REMOTE_COMMANDS"
+echo "executing: sshpass -p \"$PASS\" ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@\"$bmc_ip\" \"$REMOTE_COMMANDS\""
+sshpass -p "$PASS" ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@"$bmc_ip" "$REMOTE_COMMANDS"
 
 if [ $? -ne 0 ]; then
     echo "$SEPARATOR"
