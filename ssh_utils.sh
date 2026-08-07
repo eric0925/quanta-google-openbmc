@@ -1,12 +1,11 @@
 #!/bin/bash
 # ==============================================================================
-# File: /home/ericlee/quanta_openbmc_toolbox/ssh_utils.sh
-# Description: Quanta OpenBMC Lab 共用工具包
+# Description: Quanta OpenBMC Lab 工具包
 # ==============================================================================
 # 寫在這裡的變數，底下所有的 Function 都能直接讀取，不需要再各自 local 宣告
 SERVER="http://10.10.10.203:8888"
-conf_file="/home/ericlee/quanta_openbmc_toolbox/auto_ip_list.conf"
-cookie_path="/home/ericlee/quanta_openbmc_toolbox/cookie.txt"
+conf_file="$BASE_TOOL_PATH/auto_ip_list.conf"
+cookie_path="$BASE_TOOL_PATH/cookie.txt"
 PASS="0penBmc"
 
 select_machine_from_conf() {
@@ -18,8 +17,10 @@ select_machine_from_conf() {
     cat "$conf_file"
     echo "========================================================================================================="
 
-    local num
-    read -p "Enter Machine ID: " num
+    local num="$1"
+    if [ -z "$num" ]; then
+        read -p "Enter Machine ID: " num
+    fi
 
     # 3. 精確搜尋該行
     local line
@@ -159,7 +160,7 @@ update_machine_list() {
 autossh(){
     update_machine_list
 
-    select_machine_from_conf
+    select_machine_from_conf "$1"
 
     CMD="sshpass -p $PASS ssh -o StrictHostKeyChecking=no root@$bmc_ip"
     echo
@@ -182,13 +183,13 @@ autossh(){
 }
 
 # ==============================================================================
-# Function: mtelent
+# Function: mtelnet
 # Description: 快速使用telnet連線機器
 # ==============================================================================
-mtelent(){
+mtelnet(){
 update_machine_list
 
-select_machine_from_conf
+select_machine_from_conf "$1"
     if [ $? -ne 0 ]; then exit 1; fi
     echo "Connecting to Console: telnet $console_ip:$console_port"
     telnet "$console_ip" "$console_port"
@@ -204,11 +205,11 @@ mfree() {
     update_machine_list
     if [ $? -ne 0 ]; then return 1; fi
 
-    cat "$conf_file"
-
-    # 2. 讓使用者輸入想要釋放的 ID
-    local num
-    read -p "Enter Machine ID to RELEASE: " num
+    local num="$1"
+    if [ -z "$num" ]; then
+        cat "$conf_file"
+        read -p "Enter Machine ID to RELEASE: " num
+    fi
 
     # 3. 從檔案精確搜尋該行
     local line
@@ -256,12 +257,15 @@ mfree() {
              -d "{\"type\": \"end_use\", \"machineId\": $id, \"force\": false}")
     fi
 
-    # 8. 顯示最終結果
+    # 8. 顯示最終結果並更新與印出最新清單
     if echo "$response" | grep -q "error"; then
         echo "Failed to release machine. Server response: $response"
         return 1
     else
         echo "Success! Machine [ $device ] is now released and free for others."
+        echo
+        update_machine_list
+        cat "$conf_file"
         return 0
     fi
 }

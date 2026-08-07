@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/ericlee/quanta_openbmc_toolbox/ssh_utils.sh
+source $BASE_TOOL_PATH/ssh_utils.sh
 #-----------------------------------------------------------------------------------------
 #變數設定
 #-----------------------------------------------------------------------------------------
@@ -37,8 +37,6 @@ $LS_CMD
 
 echo "press [Enter] to AC the target"
 read -p ""
-echo "commit the sync_bios_dram_to_emmc temporarily"
-sshpass -p $PASS ssh root@$bmc_ip "sed -i 's/^\([[:space:]]*\)sync_bios_dram_to_emmc/\1# sync_bios_dram_to_emmc/'  /usr/bin/tray_powercycle.sh"
 
 AC_cmd="rm -r /run/initramfs/rw/cow/* && /usr/bin/tray_powercycle.sh"
 echo $AC_cmd

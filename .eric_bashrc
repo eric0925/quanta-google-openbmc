@@ -1,4 +1,13 @@
+export GBMC_VERSION="19.0.0.0"
+export BB_ENV_PASSTHROUGH_ADDITIONS="$BB_ENV_PASSTHROUGH_ADDITIONS GBMC_CONFIG GBMC_VERSION"
 export LC_TIME=en_US.UTF-8
+
+
+export BASE_TOOL_PATH=$HOME/quanta-google-openbmc
+export PATH="$HOME/$BASE_TOOL_PATH:$PATH"
+export PATH="$HOME/ericlee/Downloads/Antigravity/Antigravity-x64:$PATH"
+
+source $BASE_TOOL_PATH/ssh_utils.sh
 
 cdgsn() {
     source "$BASE_TOOL_PATH/cd_dir_tool/cd_dir_gsn.sh" "$@"
@@ -6,12 +15,6 @@ cdgsn() {
 cdgsp() {
     source "$BASE_TOOL_PATH/cd_dir_tool/cd_dir_gsp.sh" "$@"
 }
-
-source /home/ericlee/quanta_openbmc_toolbox/ssh_utils.sh
-
-export BASE_TOOL_PATH=$HOME/quanta_openbmc_toolbox
-export PATH="$HOME/quanta_openbmc_toolbox:$PATH"
-export PATH="$HOME/ericlee/Downloads/Antigravity/Antigravity-x64:$PATH"
 
 alias flashrom_gsn='flashrom -p ch347_spi:spispeed=60M -w ~/repo_GSN/build-gsn/tmp/deploy/images/gsn/image-bmc'
 alias crashdump_save='/home/ericlee/Downloads/from_Eric/20260606_crashdump_modify/scp_crashdump.sh'

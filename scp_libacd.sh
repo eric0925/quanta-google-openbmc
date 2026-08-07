@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/ericlee/quanta_openbmc_toolbox/ssh_utils.sh
+source $BASE_TOOL_PATH/ssh_utils.sh
 # 請確保你有定義 BASE_TOOL_PATH，或者直接改成絕對路徑
 if [ -z "$BASE_TOOL_PATH" ]; then
     BASE_TOOL_PATH="$HOME" # 預設 fallback 到家目錄，可依實際狀況調整

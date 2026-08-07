@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/ericlee/quanta_openbmc_toolbox/ssh_utils.sh
+source $BASE_TOOL_PATH/ssh_utils.sh
 
 # 固定長度的分隔線
 LINE_LENGTH=60
